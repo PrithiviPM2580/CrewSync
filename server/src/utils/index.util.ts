@@ -1,5 +1,6 @@
 import type { Response } from "express";
 import { z } from "zod";
+import { v4 as uuidv4 } from "uuid";
 
 export function formattedIssues(issues: z.ZodError["issues"]) {
   return issues.map((issue) => ({
@@ -20,4 +21,8 @@ export function successResponse<T>(
     message,
     data: data ?? null,
   });
+}
+
+export function generateInviteCode(): string {
+  return uuidv4().replace(/-/g, "").substring(0, 8);
 }
