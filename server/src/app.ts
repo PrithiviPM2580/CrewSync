@@ -2,6 +2,8 @@ import express, { type Express } from "express";
 import cors from "cors";
 import session from "cookie-session";
 import config from "./config/env.config.js";
+import routes from "@/routes/index.route.js";
+import globalErrorHandler from "@/middlewares/global-error-handler.middleware.js";
 
 const app: Express = express();
 
@@ -25,5 +27,9 @@ app.use(
     sameSite: "lax",
   })
 );
+
+app.use(routes);
+
+app.use(globalErrorHandler);
 
 export default app;
