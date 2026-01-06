@@ -47,6 +47,6 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "@types"],
   "exclude": ["node_modules", "dist"]
 }
