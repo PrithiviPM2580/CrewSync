@@ -15,6 +15,8 @@ export const envSchema = z.object({
   FRONTEND_GOOGLE_CALLBACK_URL: z
     .string()
     .min(1, "FRONTEND_GOOGLE_CALLBACK_URL is required"),
+  APP_NAME: z.string().min(1, "APP_NAME is required"),
+  APP_VERSION: z.string().min(1, "APP_VERSION is required"),
 });
 
 export type EnvVariables = z.infer<typeof envSchema>;

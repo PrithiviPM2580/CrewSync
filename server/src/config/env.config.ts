@@ -12,6 +12,8 @@ const envConfig = {
   GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
   FRONTEND_ORIGIN: process.env.FRONTEND_ORIGIN,
   FRONTEND_GOOGLE_CALLBACK_URL: process.env.FRONTEND_GOOGLE_CALLBACK_URL,
+  APP_NAME: process.env.APP_NAME,
+  APP_VERSION: process.env.APP_VERSION,
 };
 
 const config = validateSchema(envSchema, envConfig);
