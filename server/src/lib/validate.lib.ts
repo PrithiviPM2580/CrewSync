@@ -1,5 +1,6 @@
 import { formattedIssues } from "@/utils/index.util.js";
 import { z } from "zod";
+import { APIError } from "./error-handler.lib.js";
 
 export default function validateSchema<T>(
   schema: z.ZodType<T>,
@@ -9,7 +10,7 @@ export default function validateSchema<T>(
 
   if (!parsedData.success) {
     const issues = formattedIssues(parsedData.error.issues);
-    throw new Error(`Validation Error: ${issues}`);
+    throw new APIError(400, "Validation Error", true, { details: issues });
   }
 
   return parsedData.data;
