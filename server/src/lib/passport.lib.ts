@@ -4,6 +4,8 @@ import type { Request } from "express";
 import config from "@/config/env.config.js";
 import { APIError } from "./error-handler.lib.js";
 import { ProviderEnum } from "@/enums/index.enum.js";
+import { googleAccountService } from "@/services/auth.service.js";
+import logger from "./logger.lib.js";
 
 passport.use(
   new GoogleStrategy(
@@ -18,11 +20,18 @@ passport.use(
       try {
         const { email, sub: googleId, picture } = profile._json;
         if (!googleId) {
+          logger.error("Google ID not found in profile");
           return done(
             new APIError(400, "Google ID not found in profile"),
             false
           );
         }
+
+        if (!email) {
+          logger.error("Google email not found in profile");
+          return done(new APIError(400, "Google email not found"), false);
+        }
+
         const { user } = await googleAccountService({
           provider: ProviderEnum.GOOGLE,
           displayName: profile.displayName,
