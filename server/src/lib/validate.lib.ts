@@ -1,4 +1,4 @@
-import { formattedIssues } from "@/utils/index.util.js";
+import { formattedIssues } from "@/utils/formatted-issues.util.js";
 import { z } from "zod";
 import { APIError } from "./error-handler.lib.js";
 

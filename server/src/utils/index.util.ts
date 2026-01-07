@@ -1,5 +1,4 @@
 import type { Response } from "express";
-import { z } from "zod";
 import { v4 as uuidv4 } from "uuid";
 import {
   PermissionEnum,
@@ -7,13 +6,6 @@ import {
   type RoleEnumType,
 } from "@/enums/index.enum.js";
 import config from "@/config/env.config.js";
-
-export function formattedIssues(issues: z.ZodError["issues"]) {
-  return issues.map((issue) => ({
-    field: issue.path.join("."),
-    message: issue.message,
-  }));
-}
 
 export function successResponse<T>(
   res: Response,

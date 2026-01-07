@@ -5,7 +5,7 @@ import logger from "./lib/logger.lib.js";
 
 const PORT = config.PORT || 3000;
 
-export default async function startServer() {
+async function startServer() {
   try {
     await connectToDatabase();
     app.listen(PORT, () => {
@@ -15,3 +15,5 @@ export default async function startServer() {
     throw error;
   }
 }
+
+startServer();
