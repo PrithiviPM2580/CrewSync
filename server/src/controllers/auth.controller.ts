@@ -5,7 +5,7 @@ import type { Request, Response, NextFunction } from "express";
 export async function googleCallbackController(
   req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ) {
   const currentWorkspace = req.user?.currentWorkspace;
 

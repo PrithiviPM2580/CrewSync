@@ -21,10 +21,12 @@ export async function googleAccountService(data: {
 
   try {
     session.startTransaction();
-    logger.info("Starting database session for Google account service");
+    logger.info("Starting database session for Google account service", {
+      label: "AuthService",
+    });
 
     if (!email) {
-      logger.error("Email not provided by Google");
+      logger.error("Email not provided by Google", { label: "AuthService" });
       throw new APIError(400, "Email is required");
     }
 
@@ -50,7 +52,7 @@ export async function googleAccountService(data: {
       const workspace = new Workspace({
         name: `${displayName}'s Workspace`,
         description: `Workspace created for user ${displayName}`,
-        ownerId: user._id,
+        owner: user._id,
       });
 
       await workspace.save({ session });
@@ -60,14 +62,16 @@ export async function googleAccountService(data: {
       }).session(session);
 
       if (!ownerRole) {
-        logger.error("Owner role not found in database");
+        logger.error("Owner role not found in database", {
+          label: "AuthService",
+        });
         throw new APIError(500, "Owner role not found in database");
       }
 
       const member = new Member({
         userId: user._id,
         workspaceId: workspace._id,
-        roleId: ownerRole._id,
+        role: ownerRole._id,
         joinedAt: new Date(),
       });
 
@@ -79,14 +83,20 @@ export async function googleAccountService(data: {
     await session.commitTransaction();
     session.endSession();
     logger.info(
-      "Database session for Google account service committed successfully"
+      "Database session for Google account service committed successfully",
+      {
+        label: "AuthService",
+      }
     );
     return { user };
   } catch (error) {
     await session.abortTransaction();
     session.endSession();
     logger.error(
-      "Database session for Google account service aborted due to error"
+      "Database session for Google account service aborted due to error",
+      {
+        label: "AuthService",
+      }
     );
     throw new APIError(500, "Internal Server Error");
   }

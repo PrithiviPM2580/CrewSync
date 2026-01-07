@@ -1,6 +1,6 @@
 import express, { type Express } from "express";
 import cors from "cors";
-import session from "cookie-session";
+import session from "express-session";
 import config from "./config/env.config.js";
 import routes from "@/routes/index.route.js";
 import globalErrorHandler from "@/middlewares/global-error-handler.middleware.js";
@@ -21,12 +21,15 @@ app.use(
 
 app.use(
   session({
-    name: "session",
-    keys: [config.SESSION_SECRET],
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    secure: config.NODE_ENV === "production",
-    httpOnly: true,
-    sameSite: "lax",
+    secret: config.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: config.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+      sameSite: "lax",
+    },
   })
 );
 
