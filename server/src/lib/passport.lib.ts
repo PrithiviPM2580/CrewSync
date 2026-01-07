@@ -16,7 +16,7 @@ passport.use(
       scope: ["profile", "email"],
       passReqToCallback: true,
     },
-    async (req: Request, _accessToken, _refreshToken, profile, done) => {
+    async (_req: Request, _accessToken, _refreshToken, profile, done) => {
       try {
         const { email, sub: googleId, picture } = profile._json;
         if (!googleId) {
