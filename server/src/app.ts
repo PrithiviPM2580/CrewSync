@@ -4,6 +4,7 @@ import session from "cookie-session";
 import config from "./config/env.config.js";
 import routes from "@/routes/index.route.js";
 import globalErrorHandler from "@/middlewares/global-error-handler.middleware.js";
+import passport from "@/lib/passport.lib.js";
 
 const app: Express = express();
 
@@ -17,6 +18,7 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(
   session({
     name: "session",
@@ -27,6 +29,9 @@ app.use(
     sameSite: "lax",
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(routes);
 

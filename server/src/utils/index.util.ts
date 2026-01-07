@@ -6,6 +6,7 @@ import {
   type PermissionEnumType,
   type RoleEnumType,
 } from "@/enums/index.enum.js";
+import config from "@/config/env.config.js";
 
 export function formattedIssues(issues: z.ZodError["issues"]) {
   return issues.map((issue) => ({
@@ -73,3 +74,5 @@ export const RolePermissions: Record<
     PermissionEnum.VIEW_ONLY,
   ],
 };
+
+export const failedUrl = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`;

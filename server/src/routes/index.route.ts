@@ -9,6 +9,7 @@ import {
 import mongoose from "mongoose";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { APIError } from "@/lib/error-handler.lib.js";
+import authRoute from "@/routes/auth.route.js";
 
 const router: Router = Router();
 
@@ -39,6 +40,8 @@ router.route("/health").get(
     });
   })
 );
+
+router.use("/api/v1/auth", authRoute);
 
 router.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new APIError(404, "Route Not Found", true));
