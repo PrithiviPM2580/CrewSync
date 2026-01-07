@@ -20,8 +20,6 @@ passport.use(
       try {
         const { email, sub: googleId, picture } = profile._json;
 
-        console.log("Google profile:", profile);
-        console.log("GoogleId:", googleId);
         if (!googleId) {
           logger.error("Google ID not found in profile");
           return done(

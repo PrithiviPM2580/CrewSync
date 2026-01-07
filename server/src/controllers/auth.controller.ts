@@ -1,6 +1,9 @@
 import config from "@/config/env.config.js";
 import logger from "@/lib/logger.lib.js";
+import { registerSchema } from "@/validator/auth.validator.js";
 import type { Request, Response, NextFunction } from "express";
+import { registerService } from "@/services/auth.service.js";
+import { successResponse } from "@/utils/index.util.js";
 
 export async function googleCallbackController(
   req: Request,
@@ -21,4 +24,23 @@ export async function googleCallbackController(
   return res.redirect(
     `${config.FRONTEND_ORIGIN}/workspace/${currentWorkspace}`
   );
+}
+
+export async function registerController(
+  req: Request,
+  res: Response,
+  _next: NextFunction
+) {
+  const body = registerSchema.parse(req.body);
+
+  const { userId, workspaceId } = await registerService(body);
+
+  logger.info(`User registered with ID: ${userId}`, {
+    label: "AuthController",
+  });
+
+  successResponse(res, 201, "User registered successfully", {
+    userId,
+    workspaceId,
+  });
 }
