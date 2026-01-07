@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import connectToDatabase from "@/config/db.config.js";
 import Role from "@/models/role.model.js";
 import { RolePermissions } from "@/utils/index.util.js";
+import logger from "@/lib/logger.lib.js";
 
 export async function sendRolesSeeder() {
   try {
@@ -11,7 +12,7 @@ export async function sendRolesSeeder() {
     const session = await mongoose.startSession();
     session.startTransaction();
 
-    console.log("Clearing existing roles...");
+    logger.info("Clearing existing roles...");
     await Role.deleteMany({}, { session });
 
     for (const roleName in RolePermissions) {
@@ -26,18 +27,23 @@ export async function sendRolesSeeder() {
         });
 
         await newRole.save({ session });
-        console.log(`Role '${role}' created with permissions:`, permissions);
+        logger.info(
+          `Role '${role}' created with permissions: ${JSON.stringify(
+            permissions
+          )}`
+        );
       }
-      console.log(`Role '${role}' already exists. Skipping creation.`);
+      logger.info(`Role '${role}' already exists. Skipping creation.`);
     }
 
     await session.commitTransaction();
-    console.log("Transaction committed. Roles seeding completed.");
+    logger.info("Transaction committed. Roles seeding completed.");
     session.endSession();
-    console.log("Session ended.");
+    logger.info("Session ended.");
 
-    console.log("Roles seeding process finished.");
+    logger.info("Roles seeding process finished.");
   } catch (error) {
+    logger.error(`Roles seeding failed: ${(error as Error).message}`);
     throw new Error(`Roles seeding failed: ${(error as Error).message}`);
   }
 }
