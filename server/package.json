@@ -13,7 +13,8 @@
     "format:check": "biome check",
     "lint": "biome lint",
     "lint:fix": "biome lint --write",
-    "check": "biome check --write"
+    "check": "biome check --write",
+    "seed": "tsx src/seeders/role.seeder.ts"
   },
   "keywords": [],
   "author": "",

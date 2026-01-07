@@ -1,3 +1,4 @@
+import "dotenv/config";
 import mongoose from "mongoose";
 import connectToDatabase from "@/config/db.config.js";
 import Role from "@/models/role.model.js";
@@ -40,3 +41,7 @@ export async function sendRolesSeeder() {
     throw new Error(`Roles seeding failed: ${(error as Error).message}`);
   }
 }
+
+sendRolesSeeder().catch((error) => {
+  console.error("Error during roles seeding:", error);
+});
