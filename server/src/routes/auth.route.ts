@@ -6,6 +6,7 @@ import {
   googleCallbackController,
   registerController,
   loginController,
+  logoutController,
 } from "@/controllers/auth.controller.js";
 import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
@@ -28,6 +29,8 @@ router
     validateRequestMiddleware(loginSchema),
     asyncHandler(loginController)
   );
+
+router.route("/logout").post(authLimitter, asyncHandler(logoutController));
 router
   .route("/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
