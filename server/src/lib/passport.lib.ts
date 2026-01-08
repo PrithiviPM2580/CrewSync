@@ -1,11 +1,13 @@
 import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import type { Request } from "express";
 import config from "@/config/env.config.js";
 import { APIError } from "./error-handler.lib.js";
 import { ProviderEnum } from "@/enums/index.enum.js";
 import { googleAccountService } from "@/services/auth.service.js";
 import logger from "./logger.lib.js";
+import { verifyUserService } from "@/services/auth.service.js";
 
 passport.use(
   new GoogleStrategy(
@@ -49,6 +51,23 @@ passport.use(
   )
 );
 
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+      session: true,
+    },
+    async (email, password, done) => {
+      try {
+        const user = await verifyUserService({ email, password });
+        return done(null, user);
+      } catch (error) {
+        return done(error, false);
+      }
+    }
+  )
+);
 passport.serializeUser((user: any, done) => done(null, user));
 passport.deserializeUser((user: any, done) => done(null, user));
 
