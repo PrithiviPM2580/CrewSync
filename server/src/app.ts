@@ -5,6 +5,7 @@ import config from "./config/env.config.js";
 import routes from "@/routes/index.route.js";
 import globalErrorHandler from "@/middlewares/global-error-handler.middleware.js";
 import passport from "@/lib/passport.lib.js";
+import { globalLimitter } from "@/middlewares/rate-limiter.middleware.js";
 
 const app: Express = express();
 
@@ -36,6 +37,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use(globalLimitter);
 app.use(routes);
 
 app.use(globalErrorHandler);

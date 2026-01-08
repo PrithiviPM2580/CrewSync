@@ -2,11 +2,15 @@ import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { failedUrl } from "@/utils/index.util.js";
 import { Router } from "express";
 import passport from "passport";
-import { googleCallbackController } from "@/controllers/auth.controller.js";
+import {
+  googleCallbackController,
+  registerController,
+} from "@/controllers/auth.controller.js";
+import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
 
 const router: Router = Router();
 
-router.route("/register").post();
+router.route("/register").post(authLimitter, asyncHandler(registerController));
 
 router
   .route("/google")
