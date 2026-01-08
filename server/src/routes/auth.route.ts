@@ -5,10 +5,11 @@ import passport from "passport";
 import {
   googleCallbackController,
   registerController,
+  loginController,
 } from "@/controllers/auth.controller.js";
 import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
-import { registerSchema } from "@/validator/auth.validator.js";
+import { loginSchema, registerSchema } from "@/validator/auth.validator.js";
 
 const router: Router = Router();
 
@@ -18,6 +19,14 @@ router
     authLimitter,
     validateRequestMiddleware(registerSchema),
     asyncHandler(registerController)
+  );
+
+router
+  .route("/login")
+  .post(
+    authLimitter,
+    validateRequestMiddleware(loginSchema),
+    asyncHandler(loginController)
   );
 router
   .route("/google")
