@@ -7,11 +7,18 @@ import {
   registerController,
 } from "@/controllers/auth.controller.js";
 import { authLimitter } from "@/middlewares/rate-limiter.middleware.js";
+import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
+import { registerSchema } from "@/validator/auth.validator.js";
 
 const router: Router = Router();
 
-router.route("/register").post(authLimitter, asyncHandler(registerController));
-
+router
+  .route("/register")
+  .post(
+    authLimitter,
+    validateRequestMiddleware(registerSchema),
+    asyncHandler(registerController)
+  );
 router
   .route("/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
