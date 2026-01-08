@@ -48,7 +48,7 @@ export async function registerController(
 
 export async function loginController(
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ) {
   passport.authenticate(
@@ -75,7 +75,12 @@ export async function loginController(
         if (err) {
           return next(err);
         }
+
+        successResponse(res, 200, "Login successful", {
+          userId: user._id,
+          currentWorkspace: user.currentWorkspace,
+        });
       });
     }
-  );
+  )(req, res, next);
 }
