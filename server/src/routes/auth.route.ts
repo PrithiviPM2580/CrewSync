@@ -6,6 +6,8 @@ import { googleCallbackController } from "@/controllers/auth.controller.js";
 
 const router: Router = Router();
 
+router.route("/register").post();
+
 router
   .route("/google")
   .get(passport.authenticate("google", { scope: ["profile", "email"] }));
