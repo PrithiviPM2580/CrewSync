@@ -4,6 +4,8 @@ import { type RegisterType } from "@/validator/auth.validator.js";
 import type { Request, Response, NextFunction } from "express";
 import { registerService } from "@/services/auth.service.js";
 import { successResponse } from "@/utils/index.util.js";
+import passport from "passport";
+import { APIError } from "@/lib/error-handler.lib.js";
 
 export async function googleCallbackController(
   req: Request,
@@ -42,4 +44,38 @@ export async function registerController(
     userId,
     workspaceId,
   });
+}
+
+export async function loginController(
+  req: Request,
+  _res: Response,
+  next: NextFunction
+) {
+  passport.authenticate(
+    "local",
+    (
+      err: Error | null,
+      user: Express.User | false,
+      info: { message: string } | undefined
+    ) => {
+      if (err) {
+        logger.error(`Login error: ${err.message}`, {
+          label: "AuthController",
+        });
+        return next(err);
+      }
+
+      if (!user) {
+        logger.warn(`Login failed: ${info?.message}`, {
+          label: "AuthController",
+        });
+        throw new APIError(401, info?.message || "Authentication failed", true);
+      }
+      req.login(user, (err) => {
+        if (err) {
+          return next(err);
+        }
+      });
+    }
+  );
 }
