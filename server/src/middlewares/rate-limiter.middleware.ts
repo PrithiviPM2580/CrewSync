@@ -40,3 +40,26 @@ export const authLimitter = rateLimit({
     });
   },
 });
+
+export const apiLimitter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 500,
+  message: {
+    error: "Too many requests from this IP, please try again after a minute",
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req: Request): string => {
+    const userId = req.user?._id?.toString();
+    return userId ?? req.ip ?? "unknown";
+  },
+  handler: (req: Request, res: Response) => {
+    const retryAfter = req.rateLimit?.resetTime ?? null;
+    res.status(429).json({
+      error: " Too many requests",
+      message:
+        " Too many requests from this IP, please try again after a minute",
+      retryAfter,
+    });
+  },
+});
