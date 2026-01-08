@@ -188,3 +188,40 @@ export async function registerService(data: RegisterType) {
     throw new APIError(500, "Internal Server Error");
   }
 }
+
+export async function verifyUserService({
+  email,
+  password,
+  provider = ProviderEnum.EMAIL,
+}: {
+  email: string;
+  password: string;
+  provider?: string;
+}) {
+  const account = await Account.findOne({ provider, providerId: email });
+  if (!account) {
+    logger.error("No account found for the given email and provider", {
+      label: "AuthService",
+    });
+    throw new APIError(400, "Invalid email or password");
+  }
+
+  const user = await User.findById(account.userId).select("+password");
+
+  if (!user) {
+    logger.error("No user found for the given account", {
+      label: "AuthService",
+    });
+    throw new APIError(400, "Invalid email or password");
+  }
+
+  const isPasswordValid = await user.comparePassword(password);
+  if (!isPasswordValid) {
+    logger.error("Invalid password provided", {
+      label: "AuthService",
+    });
+    throw new APIError(400, "Invalid email or password");
+  }
+
+  return user;
+}
