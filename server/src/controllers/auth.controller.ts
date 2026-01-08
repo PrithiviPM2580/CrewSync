@@ -84,3 +84,34 @@ export async function loginController(
     }
   )(req, res, next);
 }
+
+export async function logoutController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  req.logOut((err) => {
+    if (err) {
+      logger.error(`Logout error: ${err.message}`, {
+        label: "AuthController",
+      });
+      return next(err);
+    }
+
+    req.session.destroy((err) => {
+      if (err) {
+        logger.error(
+          `Session destruction error during logout: ${err.message}`,
+          {
+            label: "AuthController",
+          }
+        );
+        return next(err);
+      }
+
+      res.clearCookie("connect.sid");
+
+      successResponse(res, 200, "Logout successful");
+    });
+  });
+}
