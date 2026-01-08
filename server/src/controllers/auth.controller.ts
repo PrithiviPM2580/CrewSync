@@ -1,6 +1,6 @@
 import config from "@/config/env.config.js";
 import logger from "@/lib/logger.lib.js";
-import { registerSchema } from "@/validator/auth.validator.js";
+import { type RegisterType } from "@/validator/auth.validator.js";
 import type { Request, Response, NextFunction } from "express";
 import { registerService } from "@/services/auth.service.js";
 import { successResponse } from "@/utils/index.util.js";
@@ -31,8 +31,7 @@ export async function registerController(
   res: Response,
   _next: NextFunction
 ) {
-  const body = registerSchema.parse(req.body);
-
+  const body: RegisterType = req.body;
   const { userId, workspaceId } = await registerService(body);
 
   logger.info(`User registered with ID: ${userId}`, {
