@@ -34,5 +34,5 @@ export const loginSchema = {
   }),
 };
 
-export type RegisterType = z.infer<typeof registerSchema>;
-export type LoginType = z.infer<typeof loginSchema>;
+export type RegisterType = z.infer<typeof registerSchema.body>;
+export type LoginType = z.infer<typeof loginSchema.body>;
