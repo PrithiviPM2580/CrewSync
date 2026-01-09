@@ -5,7 +5,9 @@ import type { NextFunction, Request, Response } from "express";
 import {
   createWorkspaceService,
   getAllWorkspacesUserIsMember,
+  getWorkspaceByIdService,
 } from "@/services/workspace.service.js";
+import { getMemberRoleInWorkspace } from "@/services/member.service.js";
 
 export async function createWorkspaceController(
   req: Request,
@@ -53,6 +55,34 @@ export async function getAllWorkspacesUserIsMemberController(
   });
 
   successResponse(res, 200, "Workspaces fetched successfully", {
+    workspace,
+  });
+}
+
+export async function getWorkspaceByIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+  const workspaceId = req.params.id!;
+
+  if (!userId) {
+    logger.error("Unauthorized access attempt to get workspace by ID", {
+      label: "WorkspaceController",
+    });
+    return next(new APIError(401, "Unauthorized, user not authenticated"));
+  }
+
+  await getMemberRoleInWorkspace(userId, workspaceId);
+
+  const { workspace } = await getWorkspaceByIdService(workspaceId);
+
+  logger.info(`Fetched workspace with ID ${workspaceId} for user ${userId}`, {
+    label: "WorkspaceController",
+  });
+
+  successResponse(res, 200, "Workspace fetched successfully", {
     workspace,
   });
 }
