@@ -98,7 +98,7 @@ export async function getWorkspaceMembersService(workspaceId: string) {
   const members = await Member.findOne({
     workspaceId,
   })
-    .populate("userId", "name email profilePicture -password")
+    .populate("userId", "name email profilePicture")
     .populate("role", "name");
 
   const roles = await Role.find({}, { name: 1, _id: 1 })
