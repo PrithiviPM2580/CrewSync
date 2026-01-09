@@ -136,3 +136,9 @@ export async function getWorkspaceAnalyticsService(workspaceId: string) {
 
   return { analytics };
 }
+
+export async function changeWorkspaceMemberRoleService(
+  workspaceId: string,
+  memberId: string,
+  roleId: string
+) {}
