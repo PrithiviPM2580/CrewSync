@@ -68,3 +68,18 @@ export const RolePermissions: Record<
 };
 
 export const failedUrl = `${config.FRONTEND_GOOGLE_CALLBACK_URL}?status=failure`;
+
+export async function roleGuard(
+  role: keyof typeof RolePermissions,
+  requiredPermissions: PermissionEnumType[]
+) {
+  const permissions = RolePermissions[role];
+
+  const hasPermissions = requiredPermissions.every((permission) =>
+    permission.includes(permission)
+  );
+
+  if (!hasPermissions) {
+    throw new Error("Forbidden: Insufficient permissions");
+  }
+}
