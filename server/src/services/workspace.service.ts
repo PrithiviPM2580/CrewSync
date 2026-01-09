@@ -69,3 +69,27 @@ export async function getAllWorkspacesUserIsMember(userId: Types.ObjectId) {
     workspace,
   };
 }
+
+export async function getWorkspaceByIdService(workspaceId: string) {
+  const workspace = await Workspace.findById(workspaceId);
+
+  if (!workspace) {
+    logger.error(`Workspace with id ${workspaceId} not found`, {
+      label: "WorkspaceService",
+    });
+    throw new APIError(404, "Workspace not found");
+  }
+
+  const members = await Member.find({
+    workspaceId,
+  }).populate("role");
+
+  const workspaceWithMembers = {
+    ...workspace.toObject(),
+    members,
+  };
+
+  return {
+    workspace: workspaceWithMembers,
+  };
+}
