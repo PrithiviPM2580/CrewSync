@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { z } from "zod";
 
 export const createWorkSpaceSchema = {
@@ -31,5 +32,14 @@ export const updateWorkSpaceSchema = {
   }),
 };
 
+export const getWorkspaceById = {
+  params: z.object({
+    id: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid workspace ID",
+    }),
+  }),
+};
+
 export type CreateWorkspaceType = z.infer<typeof createWorkSpaceSchema.body>;
 export type UpdateWorkspaceType = z.infer<typeof updateWorkSpaceSchema.body>;
+export type GetWorkspaceByIdType = z.infer<typeof getWorkspaceById.params>;
