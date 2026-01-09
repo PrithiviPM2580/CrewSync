@@ -1,8 +1,9 @@
-import { RoleEnum } from "@/enums/index.enum.js";
+import { RoleEnum, TaskStatusEnum } from "@/enums/index.enum.js";
 import { APIError } from "@/lib/error-handler.lib.js";
 import logger from "@/lib/logger.lib.js";
 import Member from "@/models/member.model.js";
 import Role from "@/models/role.model.js";
+import Task from "@/models/task.model.js";
 import User from "@/models/user.model.js";
 import Workspace from "@/models/workspace.model.js";
 import type { CreateWorkspaceType } from "@/validator/workspace.validator.js";
@@ -109,4 +110,29 @@ export async function getWorkspaceMembersService(workspaceId: string) {
     members,
     roles,
   };
+}
+
+export async function getWorkspaceAnalyticsService(workspaceId: string) {
+  const currentDate = new Date();
+
+  const totalTasks = await Task.countDocuments({ workspace: workspaceId });
+
+  const overdueTask = await Task.countDocuments({
+    workspace: workspaceId,
+    dueDate: { $lt: currentDate },
+    status: { $ne: TaskStatusEnum.DONE },
+  });
+
+  const completedTask = await Task.countDocuments({
+    workspace: workspaceId,
+    status: TaskStatusEnum.DONE,
+  });
+
+  const analytics = {
+    totalTasks,
+    overdueTask,
+    completedTask,
+  };
+
+  return { analytics };
 }
