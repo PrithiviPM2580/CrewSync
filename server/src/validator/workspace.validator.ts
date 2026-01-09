@@ -40,6 +40,24 @@ export const getWorkspaceById = {
   }),
 };
 
+export const changeRoleSchema = {
+  params: z.object({
+    id: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid workspace ID",
+    }),
+  }),
+  body: z.object({
+    roleId: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid role ID",
+    }),
+    memberId: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid member ID",
+    }),
+  }),
+};
+
 export type CreateWorkspaceType = z.infer<typeof createWorkSpaceSchema.body>;
 export type UpdateWorkspaceType = z.infer<typeof updateWorkSpaceSchema.body>;
 export type GetWorkspaceByIdType = z.infer<typeof getWorkspaceById.params>;
+export type ChangeRoleParamsType = z.infer<typeof changeRoleSchema.params>;
+export type ChangeRoleBodyType = z.infer<typeof changeRoleSchema.body>;
