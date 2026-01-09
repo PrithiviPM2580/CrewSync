@@ -5,6 +5,7 @@ import {
   createWorkspaceController,
   getAllWorkspacesUserIsMemberController,
   getWorkspaceByIdController,
+  getWorkspaceMembersController,
 } from "@/controllers/workspace.controller.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
 import {
@@ -39,6 +40,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(getWorkspaceById),
     asyncHandler(getWorkspaceByIdController)
+  );
+
+router
+  .route("/members:id")
+  .get(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getWorkspaceById),
+    asyncHandler(getWorkspaceMembersController)
   );
 
 export default router;
