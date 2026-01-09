@@ -56,3 +56,16 @@ export async function createWorkspaceService(
     workspace,
   };
 }
+
+export async function getAllWorkspacesUserIsMember(userId: Types.ObjectId) {
+  const memberships = await Member.find({ userId })
+    .populate("workspaceId")
+    .select("-password")
+    .lean();
+
+  const workspace = memberships.map((membership) => membership.workspaceId);
+
+  return {
+    workspace,
+  };
+}
