@@ -7,6 +7,7 @@ import {
   getAllWorkspacesUserIsMember,
   getWorkspaceByIdService,
   getWorkspaceMembersService,
+  getWorkspaceAnalyticsService,
 } from "@/services/workspace.service.js";
 import { getMemberRoleInWorkspace } from "@/services/member.service.js";
 import { PermissionEnum } from "@/enums/index.enum.js";
@@ -117,5 +118,40 @@ export async function getWorkspaceMembersController(
   successResponse(res, 200, "Workspace members fetched successfully", {
     members,
     roles,
+  });
+}
+
+export async function getWorkspaceAnalyticsController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+  const workspaceId = req.params.id!;
+
+  if (!userId) {
+    logger.error("Unauthorized access attempt to get workspace members", {
+      label: "WorkspaceController",
+    });
+    return next(new APIError(401, "Unauthorized, user not authenticated"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+  roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+  const { analytics } = await getWorkspaceAnalyticsService(workspaceId);
+
+  logger.info(
+    `Fetched analytics for workspace with ID ${workspaceId}, ${JSON.stringify(
+      analytics
+    )}`,
+    {
+      label: "WorkspaceController",
+    }
+  );
+
+  successResponse(res, 200, "Workspace analytics fetched successfully", {
+    analytics,
   });
 }
