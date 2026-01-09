@@ -4,9 +4,13 @@ import { Router } from "express";
 import {
   createWorkspaceController,
   getAllWorkspacesUserIsMemberController,
+  getWorkspaceByIdController,
 } from "@/controllers/workspace.controller.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
-import { createWorkSpaceSchema } from "@/validator/workspace.validator.js";
+import {
+  createWorkSpaceSchema,
+  getWorkspaceById,
+} from "@/validator/workspace.validator.js";
 import { isAuthenticated } from "@/middlewares/isAunticates.middleware.js";
 
 const router: Router = Router();
@@ -26,6 +30,15 @@ router
     apiLimitter,
     isAuthenticated,
     asyncHandler(getAllWorkspacesUserIsMemberController)
+  );
+
+router
+  .route("/:id")
+  .get(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getWorkspaceById),
+    asyncHandler(getWorkspaceByIdController)
   );
 
 export default router;
