@@ -43,7 +43,7 @@ router
   );
 
 router
-  .route("/members:id")
+  .route("/members/:id")
   .get(
     apiLimitter,
     isAuthenticated,
