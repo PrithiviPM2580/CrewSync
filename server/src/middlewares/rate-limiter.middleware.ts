@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import type { Request, Response } from "express";
 
 export const globalLimitter = rateLimit({
@@ -51,7 +51,7 @@ export const apiLimitter = rateLimit({
   legacyHeaders: false,
   keyGenerator: (req: Request): string => {
     const userId = req.user?._id?.toString();
-    return userId ?? req.ip ?? "unknown";
+    return userId ?? ipKeyGenerator(req as any);
   },
   handler: (req: Request, res: Response) => {
     const retryAfter = req.rateLimit?.resetTime ?? null;
