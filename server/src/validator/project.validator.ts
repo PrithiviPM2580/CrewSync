@@ -28,10 +28,10 @@ export const updateProjectschema = {
 
 export const projectIdParamSchema = {
   params: z.object({
-    projectId: z
+    workspaceId: z
       .string()
       .refine((val) => mongoose.Types.ObjectId.isValid(val), {
-        message: "Invalid project id",
+        message: "Invalid workspace id",
       }),
   }),
 };

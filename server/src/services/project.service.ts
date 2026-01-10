@@ -13,8 +13,8 @@ export async function createProjectService(
     name: name,
     description: description,
     emoji: emoji,
-    workspaceId: workspaceId,
-    createdBy: userId,
+    workspace: workspaceId,
+    createBy: userId,
   });
 
   await project.save();

@@ -25,11 +25,13 @@ export async function createProjectController(
   const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
   roleGuard(role, [PermissionEnum.CREATE_PROJECT]);
 
-  const {} = await createProjectService(userId, workspaceId, body);
+  const { project } = await createProjectService(userId, workspaceId, body);
 
   logger.info(`Project created successfully in workspace ${workspaceId}`, {
     label: "ProjectController",
   });
 
-  successResponse(res, 201, "Project created successfully", {});
+  successResponse(res, 201, "Project created successfully", {
+    project,
+  });
 }
