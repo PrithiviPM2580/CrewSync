@@ -3,8 +3,14 @@ import { isAuthenticated } from "@/middlewares/isAunticates.middleware.js";
 import { apiLimitter } from "@/middlewares/rate-limiter.middleware.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
 import { Router } from "express";
-import { createTaskController } from "@/controllers/task.controller.js";
-import { createTaskSchema } from "@/validator/task.validator.js";
+import {
+  createTaskController,
+  updateTaskController,
+} from "@/controllers/task.controller.js";
+import {
+  createTaskSchema,
+  updateTaskSchema,
+} from "@/validator/task.validator.js";
 
 const router: Router = Router();
 
@@ -15,6 +21,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(createTaskSchema),
     asyncHandler(createTaskController)
+  );
+
+router
+  .route("/:id/project/:projectId/workspace/:workspaceId/update")
+  .put(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(updateTaskSchema),
+    asyncHandler(updateTaskController)
   );
 
 export default router;
