@@ -1,8 +1,9 @@
 import type { CreateProjectBodyType } from "@/validator/project.validator.js";
 import Project from "@/models/project.model.js";
-import type { Types } from "mongoose";
+import { Types } from "mongoose";
 import logger from "@/lib/logger.lib.js";
 import { APIError } from "@/lib/error-handler.lib.js";
+import { TaskStatusEnum } from "@/enums/index.enum.js";
 
 export async function createProjectService(
   userId: Types.ObjectId,
@@ -72,4 +73,62 @@ export async function getProjectByIdAndWorkspaceIdService(
   }
 
   return { project };
+}
+
+export async function getProjectAnalyticsService(
+  projectId: string,
+  workspaceId: string
+) {
+  const project = await Project.findById(projectId).lean();
+
+  if (!project || project.workspace.toString() !== workspaceId) {
+    logger.error(`Project ${projectId} not found in workspace ${workspaceId}`, {
+      label: "ProjectService",
+    });
+    throw new APIError(404, "Project not found");
+  }
+
+  const currentDate = new Date();
+
+  const taskAnalytics = await Project.aggregate([
+    {
+      $match: {
+        project: new Types.ObjectId(projectId),
+      },
+    },
+    {
+      $facet: {
+        totalTasks: [{ $count: "count" }],
+        overdueTasks: [
+          {
+            $match: {
+              dueDate: { $lt: currentDate },
+              status: {
+                $ne: TaskStatusEnum.DONE,
+              },
+            },
+          },
+          {
+            $count: "count",
+          },
+        ],
+        completedTasks: [
+          {
+            $match: { status: TaskStatusEnum.DONE },
+          },
+          { $count: "count" },
+        ],
+      },
+    },
+  ]);
+
+  const _analytics = taskAnalytics[0];
+
+  const analytics = {
+    totalTasks: _analytics.totalTasks[0]?.count || 0,
+    overdueTasks: _analytics.overdueTasks[0]?.count || 0,
+    completedTasks: _analytics.completedTasks[0]?.count || 0,
+  };
+
+  return { analytics };
 }
