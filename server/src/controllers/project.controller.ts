@@ -10,6 +10,7 @@ import {
   getProjectByIdAndWorkspaceIdService,
   getProjectAnalyticsService,
   updateProjectService,
+  deleteProjectService,
 } from "@/services/project.service.js";
 
 export async function createProjectController(
@@ -188,4 +189,36 @@ export async function updateProjectController(
   successResponse(res, 200, "Project updated successfully", {
     project,
   });
+}
+
+export async function deleteProjectController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+  const projectId = req.params.id!;
+  const workspaceId = req.params.workspaceId!;
+  const body = req.body;
+
+  if (!userId) {
+    logger.error(`Unauthorized access to update project`, {
+      label: "ProjectController",
+    });
+    return next(new APIError(401, "Unauthorized"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.DELETE_PROJECT]);
+
+  await deleteProjectService(workspaceId, projectId);
+
+  logger.info(
+    `Project ${projectId} deleted successfully in workspace ${workspaceId}`,
+    {
+      label: "ProjectController",
+    }
+  );
+
+  successResponse(res, 200, "Project deleted successfully", {});
 }
