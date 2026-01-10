@@ -1,4 +1,7 @@
-import type { CreateProjectBodyType } from "@/validator/project.validator.js";
+import type {
+  CreateProjectBodyType,
+  UpdateProjectWithParamsBodyType,
+} from "@/validator/project.validator.js";
 import Project from "@/models/project.model.js";
 import { Types } from "mongoose";
 import logger from "@/lib/logger.lib.js";
@@ -131,4 +134,31 @@ export async function getProjectAnalyticsService(
   };
 
   return { analytics };
+}
+
+export async function updateProjectService(
+  workspaceId: string,
+  projectId: string,
+  body: UpdateProjectWithParamsBodyType
+) {
+  const { emoji, name, description } = body;
+  const project = await Project.findOne({
+    _id: projectId,
+    workspace: workspaceId,
+  });
+
+  if (!project) {
+    logger.error(`Project ${projectId} not found in workspace ${workspaceId}`, {
+      label: "ProjectService",
+    });
+    throw new APIError(404, "Project not found");
+  }
+
+  if (emoji !== undefined) project.emoji = emoji;
+  if (name !== undefined) project.name = name;
+  if (description !== undefined) project.description = description;
+
+  await project.save();
+
+  return { project };
 }
