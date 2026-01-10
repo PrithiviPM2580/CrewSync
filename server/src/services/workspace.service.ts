@@ -2,12 +2,14 @@ import { RoleEnum, TaskStatusEnum } from "@/enums/index.enum.js";
 import { APIError } from "@/lib/error-handler.lib.js";
 import logger from "@/lib/logger.lib.js";
 import Member from "@/models/member.model.js";
+import Project from "@/models/project.model.js";
 import Role from "@/models/role.model.js";
 import Task from "@/models/task.model.js";
 import User from "@/models/user.model.js";
 import Workspace from "@/models/workspace.model.js";
 import type { CreateWorkspaceType } from "@/validator/workspace.validator.js";
 import type { Types } from "mongoose";
+import mongoose from "mongoose";
 
 export async function createWorkspaceService(
   userId: Types.ObjectId,
@@ -205,4 +207,71 @@ export async function updateWorkspaceByIdService(
   return {
     workspace,
   };
+}
+
+export async function deleteWorkspaceByIdService(
+  workspaceId: string,
+  userId: Types.ObjectId
+) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const workspace = await Workspace.findById(workspaceId).session(session);
+
+    if (!workspace) {
+      logger.error(`Workspace with id ${workspaceId} not found`, {
+        label: "WorkspaceService",
+      });
+      throw new APIError(404, "Workspace not found");
+    }
+
+    if (!workspace.owner.equals(userId)) {
+      logger.error(
+        `User with id ${userId} is not authorized to delete workspace ${workspaceId}`,
+        {
+          label: "WorkspaceService",
+        }
+      );
+      throw new APIError(
+        403,
+        "Forbidden, user not authorized to delete workspace"
+      );
+    }
+    const user = await User.findById(userId).session(session);
+
+    if (!user) {
+      logger.error(`User with id ${userId} not found`, {
+        label: "WorkspaceService",
+      });
+      throw new APIError(404, "User not found");
+    }
+
+    await Project.deleteMany({ workspace: workspace._id }).session(session);
+
+    await Task.deleteMany({ workspace: workspace._id }).session(session);
+
+    await Member.deleteMany({ workspaceId: workspace._id }).session(session);
+
+    if (user.currentWorkspace?.equals(workspaceId)) {
+      const memberWorkspace = await Member.findOne({ userId }).session(session);
+      user.currentWorkspace = memberWorkspace
+        ? memberWorkspace.workspaceId
+        : null;
+      await user.save({ session });
+    }
+
+    await workspace.deleteOne({ session });
+
+    await session.commitTransaction();
+    session.endSession();
+
+    return {
+      currentWorkspace: user.currentWorkspace,
+    };
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    throw new APIError(500, "Internal server error");
+  }
 }
