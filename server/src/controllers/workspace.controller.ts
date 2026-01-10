@@ -10,6 +10,7 @@ import {
   getWorkspaceAnalyticsService,
   changeWorkspaceMemberRoleService,
   updateWorkspaceByIdService,
+  deleteWorkspaceByIdService,
 } from "@/services/workspace.service.js";
 import { getMemberRoleInWorkspace } from "@/services/member.service.js";
 import { PermissionEnum } from "@/enums/index.enum.js";
@@ -226,5 +227,38 @@ export async function updateWorkspaceByIdController(
 
   successResponse(res, 200, "Workspace updated successfully", {
     workspace,
+  });
+}
+
+export async function deleteWorkspaceByIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const workspaceId = req.params.id!;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    logger.error("Unauthorized access attempt to delete workspace", {
+      label: "WorkspaceController",
+    });
+    return next(new APIError(401, "Unauthorized, user not authenticated"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+  roleGuard(role, [PermissionEnum.DELETE_WORKSPACE]);
+
+  const { currentWorkspace } = await deleteWorkspaceByIdService(
+    workspaceId,
+    userId
+  );
+
+  logger.info(`Deleted workspace ${workspaceId}`, {
+    label: "WorkspaceController",
+  });
+
+  successResponse(res, 200, "Workspace deleted successfully", {
+    currentWorkspace,
   });
 }
