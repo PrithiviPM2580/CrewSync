@@ -57,6 +57,19 @@ export const getAllprojectSchema = {
   }),
 };
 
+export const getProjectByIdAndWorkspaceIdSchema = {
+  params: z.object({
+    id: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid project id",
+    }),
+    workspaceId: z
+      .string()
+      .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        message: "Invalid workspace id",
+      }),
+  }),
+};
+
 export type CreateProjectType = z.infer<typeof createProjectSchema>;
 export type CreateProjectBodyType = z.infer<typeof createProjectSchema.body>;
 export type CreateProjectParamsType = z.infer<
@@ -69,3 +82,6 @@ export type GetAllProjectParamsType = z.infer<
   typeof getAllprojectSchema.params
 >;
 export type GetAllProjectQueryType = z.infer<typeof getAllprojectSchema.query>;
+export type GetProjectByIdAndWorkspaceIdType = z.infer<
+  typeof getProjectByIdAndWorkspaceIdSchema.params
+>;
