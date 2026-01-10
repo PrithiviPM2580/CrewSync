@@ -70,6 +70,29 @@ export const getProjectByIdAndWorkspaceIdSchema = {
   }),
 };
 
+export const updateProjectWithParamsSchema = {
+  params: z.object({
+    id: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid project id",
+    }),
+    workspaceId: z
+      .string()
+      .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        message: "Invalid workspace id",
+      }),
+  }),
+  body: z.object({
+    emoji: z.string().trim().optional(),
+    name: z
+      .string()
+      .trim()
+      .min(3, "Project name must be at least 3 characters long")
+      .max(255, "Project name must be at most 255 characters long")
+      .optional(),
+    description: z.string().trim().optional(),
+  }),
+};
+
 export type CreateProjectType = z.infer<typeof createProjectSchema>;
 export type CreateProjectBodyType = z.infer<typeof createProjectSchema.body>;
 export type CreateProjectParamsType = z.infer<
@@ -84,4 +107,14 @@ export type GetAllProjectParamsType = z.infer<
 export type GetAllProjectQueryType = z.infer<typeof getAllprojectSchema.query>;
 export type GetProjectByIdAndWorkspaceIdType = z.infer<
   typeof getProjectByIdAndWorkspaceIdSchema.params
+>;
+
+export type UpdateProjectWithParamsType = z.infer<
+  typeof updateProjectWithParamsSchema
+>;
+export type UpdateProjectWithParamsBodyType = z.infer<
+  typeof updateProjectWithParamsSchema.body
+>;
+export type UpdateProjectWithParamsParamsType = z.infer<
+  typeof updateProjectWithParamsSchema.params
 >;
