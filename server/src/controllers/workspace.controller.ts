@@ -167,7 +167,7 @@ export async function changeWorkspaceMemberRoleController(
   next: NextFunction
 ) {
   const userId = req.user?._id;
-  const { id: workspaceId } = req.params;
+  const workspaceId = req.params.id!;
   const { memberId, roleId } = req.body;
 
   if (!userId) {
