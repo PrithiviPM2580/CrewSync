@@ -8,6 +8,7 @@ import {
   createProjectService,
   getAllProjectsService,
   getProjectByIdAndWorkspaceIdService,
+  getProjectAnalyticsService,
 } from "@/services/project.service.js";
 
 export async function createProjectController(
@@ -115,5 +116,41 @@ export async function getProjectByIdAndWorkspaceIdController(
 
   successResponse(res, 200, "Project fetched successfully", {
     project,
+  });
+}
+
+export async function getProjectAnalyticsController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const projectId = req.params.id!;
+  const workspaceId = req.params.workspaceId!;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    logger.error(`Unauthorized access to get project analytics`, {
+      label: "ProjectController",
+    });
+    return next(new APIError(401, "Unauthorized"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+  const { analytics } = await getProjectAnalyticsService(
+    projectId,
+    workspaceId
+  );
+
+  logger.info(
+    `Fetched analytics for project ${projectId} in workspace ${workspaceId}`,
+    {
+      label: "ProjectController",
+    }
+  );
+
+  successResponse(res, 200, "Project analytics fetched successfully", {
+    analytics,
   });
 }
