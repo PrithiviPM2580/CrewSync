@@ -2,10 +2,6 @@ import { APIError } from "@/lib/error-handler.lib.js";
 import logger from "@/lib/logger.lib.js";
 import { successResponse, roleGuard } from "@/utils/index.util.js";
 import type { NextFunction, Request, Response } from "express";
-import type {
-  ChangeRoleBodyType,
-  ChangeRoleParamsType,
-} from "@/validator/workspace.validator.js";
 import {
   createWorkspaceService,
   getAllWorkspacesUserIsMember,
@@ -13,6 +9,7 @@ import {
   getWorkspaceMembersService,
   getWorkspaceAnalyticsService,
   changeWorkspaceMemberRoleService,
+  updateWorkspaceByIdService,
 } from "@/services/workspace.service.js";
 import { getMemberRoleInWorkspace } from "@/services/member.service.js";
 import { PermissionEnum } from "@/enums/index.enum.js";
@@ -194,5 +191,40 @@ export async function changeWorkspaceMemberRoleController(
 
   successResponse(res, 200, "Member role changed successfully", {
     member,
+  });
+}
+
+export async function updateWorkspaceByIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+  const workspaceId = req.params.id!;
+  const { name, description } = req.body;
+
+  if (!userId) {
+    logger.error("Unauthorized access attempt to change member role", {
+      label: "WorkspaceController",
+    });
+    return next(new APIError(401, "Unauthorized, user not authenticated"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+
+  roleGuard(role, [PermissionEnum.EDIT_WORKSPACE]);
+
+  const { workspace } = await updateWorkspaceByIdService(
+    workspaceId,
+    name,
+    description
+  );
+
+  logger.info(`Updated workspace ${workspaceId}`, {
+    label: "WorkspaceController",
+  });
+
+  successResponse(res, 200, "Workspace updated successfully", {
+    workspace,
   });
 }
