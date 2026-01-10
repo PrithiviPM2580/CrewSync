@@ -1,6 +1,8 @@
 import type { CreateProjectBodyType } from "@/validator/project.validator.js";
 import Project from "@/models/project.model.js";
 import type { Types } from "mongoose";
+import logger from "@/lib/logger.lib.js";
+import { APIError } from "@/lib/error-handler.lib.js";
 
 export async function createProjectService(
   userId: Types.ObjectId,
@@ -51,4 +53,23 @@ export async function getAllProjectsService(
     totalPages,
     skip,
   };
+}
+
+export async function getProjectByIdAndWorkspaceIdService(
+  projectId: string,
+  workspaceId: string
+) {
+  const project = await Project.findOne({
+    _id: projectId,
+    workspace: workspaceId,
+  }).select("_id emoji name description");
+
+  if (!project) {
+    logger.error(`Project ${projectId} not found in workspace ${workspaceId}`, {
+      label: "ProjectService",
+    });
+    throw new APIError(404, "Project not found");
+  }
+
+  return { project };
 }
