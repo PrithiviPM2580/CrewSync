@@ -141,4 +141,44 @@ export async function changeWorkspaceMemberRoleService(
   workspaceId: string,
   memberId: string,
   roleId: string
-) {}
+) {
+  const workspace = await Workspace.findById(workspaceId);
+
+  if (!workspace) {
+    logger.error(`Workspace with id ${workspaceId} not found`, {
+      label: "WorkspaceService",
+    });
+    throw new APIError(404, "Workspace not found");
+  }
+
+  const role = await Role.findById(roleId);
+
+  if (!role) {
+    logger.error(`Role with id ${roleId} not found`, {
+      label: "WorkspaceService",
+    });
+    throw new APIError(404, "Role not found");
+  }
+
+  const member = await Member.findOne({
+    userId: memberId,
+    workspaceId: workspaceId,
+  });
+
+  if (!member) {
+    logger.error(
+      `Member with id ${memberId} not found in workspace ${workspaceId}`,
+      {
+        label: "WorkspaceService",
+      }
+    );
+    throw new APIError(404, "Member not found in the workspace");
+  }
+
+  member.role = role;
+  await member.save();
+
+  return {
+    member,
+  };
+}
