@@ -7,6 +7,7 @@ import { Types } from "mongoose";
 import logger from "@/lib/logger.lib.js";
 import { APIError } from "@/lib/error-handler.lib.js";
 import { TaskStatusEnum } from "@/enums/index.enum.js";
+import Task from "@/models/task.model.js";
 
 export async function createProjectService(
   userId: Types.ObjectId,
@@ -161,4 +162,27 @@ export async function updateProjectService(
   await project.save();
 
   return { project };
+}
+
+export async function deleteProjectService(
+  workspaceId: string,
+  projectId: string
+) {
+  const project = await Project.findOne({
+    _id: projectId,
+    workspace: workspaceId,
+  });
+
+  if (!project) {
+    logger.error(`Project ${projectId} not found in workspace ${workspaceId}`, {
+      label: "ProjectService",
+    });
+    throw new APIError(404, "Project not found");
+  }
+
+  await project.deleteOne();
+
+  await Task.deleteMany({ project: project._id });
+
+  return project;
 }
