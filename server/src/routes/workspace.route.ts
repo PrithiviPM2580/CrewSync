@@ -9,6 +9,7 @@ import {
   getWorkspaceAnalyticsController,
   changeWorkspaceMemberRoleController,
   updateWorkspaceByIdController,
+  deleteWorkspaceByIdController,
 } from "@/controllers/workspace.controller.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
 import {
@@ -81,6 +82,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(updateWorkspaceSchema),
     asyncHandler(updateWorkspaceByIdController)
+  );
+
+router
+  .route("/delete/:id")
+  .delete(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getWorkspaceById),
+    asyncHandler(deleteWorkspaceByIdController)
   );
 
 export default router;
