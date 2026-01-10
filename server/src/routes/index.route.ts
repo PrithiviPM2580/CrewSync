@@ -12,6 +12,7 @@ import { APIError } from "@/lib/error-handler.lib.js";
 import authRoute from "@/routes/auth.route.js";
 import userRoute from "@/routes/user.route.js";
 import workspaceRoute from "@/routes/workspace.route.js";
+import memberRoute from "@/routes/member.route.js";
 
 const router: Router = Router();
 
@@ -46,6 +47,7 @@ router.route("/health").get(
 router.use("/api/v1/auth", authRoute);
 router.use("/api/v1/users", userRoute);
 router.use("/api/v1/workspaces", workspaceRoute);
+router.use("/api/v1/members", memberRoute);
 
 router.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new APIError(404, "Route Not Found", true));
