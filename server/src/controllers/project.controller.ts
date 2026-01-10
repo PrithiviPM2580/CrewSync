@@ -7,6 +7,7 @@ import type { NextFunction, Request, Response } from "express";
 import {
   createProjectService,
   getAllProjectsService,
+  getProjectByIdAndWorkspaceIdService,
 } from "@/services/project.service.js";
 
 export async function createProjectController(
@@ -81,5 +82,38 @@ export async function getAllprojectsController(
       skip,
       limit: Number(pageSize),
     },
+  });
+}
+
+export async function getProjectByIdAndWorkspaceIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const projectId = req.params.id!;
+  const workspaceId = req.params.workspaceId!;
+  const userId = req.user?._id;
+
+  if (!userId) {
+    logger.error(`Unauthorized access to get project by id`, {
+      label: "ProjectController",
+    });
+    return next(new APIError(401, "Unauthorized"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+  const { project } = await getProjectByIdAndWorkspaceIdService(
+    projectId,
+    workspaceId
+  );
+
+  logger.info(`Fetched project ${projectId} in workspace ${workspaceId}`, {
+    label: "ProjectController",
+  });
+
+  successResponse(res, 200, "Project fetched successfully", {
+    project,
   });
 }
