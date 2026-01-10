@@ -9,6 +9,7 @@ import {
   getAllProjectsService,
   getProjectByIdAndWorkspaceIdService,
   getProjectAnalyticsService,
+  updateProjectService,
 } from "@/services/project.service.js";
 
 export async function createProjectController(
@@ -152,5 +153,39 @@ export async function getProjectAnalyticsController(
 
   successResponse(res, 200, "Project analytics fetched successfully", {
     analytics,
+  });
+}
+
+export async function updateProjectController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+  const projectId = req.params.id!;
+  const workspaceId = req.params.workspaceId!;
+  const body = req.body;
+
+  if (!userId) {
+    logger.error(`Unauthorized access to update project`, {
+      label: "ProjectController",
+    });
+    return next(new APIError(401, "Unauthorized"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.EDIT_PROJECT]);
+
+  const { project } = await updateProjectService(workspaceId, projectId, body);
+
+  logger.info(
+    `Project ${projectId} updated successfully in workspace ${workspaceId}`,
+    {
+      label: "ProjectController",
+    }
+  );
+
+  successResponse(res, 200, "Project updated successfully", {
+    project,
   });
 }
