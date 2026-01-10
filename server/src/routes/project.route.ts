@@ -1,6 +1,7 @@
 import {
   createProjectController,
   getAllprojectsController,
+  getProjectByIdAndWorkspaceIdController,
 } from "@/controllers/project.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { isAuthenticated } from "@/middlewares/isAunticates.middleware.js";
@@ -9,6 +10,7 @@ import validateRequestMiddleware from "@/middlewares/request-validate.middleware
 import {
   createProjectSchema,
   getAllprojectSchema,
+  getProjectByIdAndWorkspaceIdSchema,
 } from "@/validator/project.validator.js";
 import { Router } from "express";
 
@@ -30,6 +32,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(getAllprojectSchema),
     asyncHandler(getAllprojectsController)
+  );
+
+router
+  .route("/:id/workspace/:workspaceId")
+  .get(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getProjectByIdAndWorkspaceIdSchema),
+    asyncHandler(getProjectByIdAndWorkspaceIdController)
   );
 
 export default router;
