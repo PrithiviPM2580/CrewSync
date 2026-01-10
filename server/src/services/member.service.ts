@@ -3,6 +3,8 @@ import Workspace from "@/models/workspace.model.js";
 import logger from "@/lib/logger.lib.js";
 import { APIError } from "@/lib/error-handler.lib.js";
 import Member from "@/models/member.model.js";
+import Role from "@/models/role.model.js";
+import { RolePermissions } from "@/utils/index.util.js";
 
 export async function getMemberRoleInWorkspace(
   userId: Types.ObjectId,
@@ -31,4 +33,52 @@ export async function getMemberRoleInWorkspace(
 
   const roleName = member.role?.name;
   return { role: roleName };
+}
+
+export async function joinWorkspaceByInviteCodeService(
+  userId: Types.ObjectId,
+  inviteCode: string
+) {
+  const workspace = await Workspace.findOne({ inviteCode });
+
+  if (!workspace) {
+    logger.error(`Invalid invite code: ${inviteCode}`, {
+      label: "MemberService",
+    });
+    throw new APIError(404, "Invalid invite code");
+  }
+
+  const existingMember = await Member.findOne({
+    userId,
+    workspaceId: workspace._id,
+  });
+
+  if (existingMember) {
+    logger.error(
+      `User ${userId} is already a member of workspace ${workspace._id}`,
+      {
+        label: "MemberService",
+      }
+    );
+    throw new APIError(400, "User is already a member of the workspace");
+  }
+
+  const role = await Role.findOne({ name: RolePermissions.MEMBER });
+
+  if (!role) {
+    logger.error(`Default member role not found`, {
+      label: "MemberService",
+    });
+    throw new APIError(500, "Default member role not found");
+  }
+
+  const newMember = new Member({
+    userId,
+    workspaceId: workspace._id,
+    role: role._id,
+  });
+
+  await newMember.save();
+
+  return { workspaceId: workspace._id, role: role.name };
 }
