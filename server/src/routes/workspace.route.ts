@@ -8,12 +8,14 @@ import {
   getWorkspaceMembersController,
   getWorkspaceAnalyticsController,
   changeWorkspaceMemberRoleController,
+  updateWorkspaceByIdController,
 } from "@/controllers/workspace.controller.js";
 import validateRequestMiddleware from "@/middlewares/request-validate.middleware.js";
 import {
   changeRoleSchema,
   createWorkSpaceSchema,
   getWorkspaceById,
+  updateWorkspaceSchema,
 } from "@/validator/workspace.validator.js";
 import { isAuthenticated } from "@/middlewares/isAunticates.middleware.js";
 
@@ -70,6 +72,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(changeRoleSchema),
     asyncHandler(changeWorkspaceMemberRoleController)
+  );
+
+router
+  .route("/update/:id")
+  .put(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(updateWorkspaceSchema),
+    asyncHandler(updateWorkspaceByIdController)
   );
 
 export default router;
