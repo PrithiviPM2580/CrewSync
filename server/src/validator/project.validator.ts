@@ -2,6 +2,13 @@ import mongoose from "mongoose";
 import { z } from "zod";
 
 export const createProjectSchema = {
+  params: z.object({
+    workspaceId: z
+      .string()
+      .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        message: "Invalid workspace id",
+      }),
+  }),
   body: z.object({
     emoji: z.string().trim().optional(),
     name: z
@@ -36,6 +43,29 @@ export const projectIdParamSchema = {
   }),
 };
 
-export type CreateProjectType = z.infer<typeof createProjectSchema.body>;
+export const getAllprojectSchema = {
+  params: z.object({
+    workspaceId: z
+      .string()
+      .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        message: "Invalid workspace id",
+      }),
+  }),
+  query: z.object({
+    pageSize: z.coerce.number().int().positive().optional(),
+    pageNumber: z.coerce.number().int().positive().optional(),
+  }),
+};
+
+export type CreateProjectType = z.infer<typeof createProjectSchema>;
+export type CreateProjectBodyType = z.infer<typeof createProjectSchema.body>;
+export type CreateProjectParamsType = z.infer<
+  typeof createProjectSchema.params
+>;
 export type UpdateProjectType = z.infer<typeof updateProjectschema.body>;
 export type ProjectIdParamType = z.infer<typeof projectIdParamSchema.params>;
+export type GetAllProjectType = z.infer<typeof getAllprojectSchema>;
+export type GetAllProjectParamsType = z.infer<
+  typeof getAllprojectSchema.params
+>;
+export type GetAllProjectQueryType = z.infer<typeof getAllprojectSchema.query>;
