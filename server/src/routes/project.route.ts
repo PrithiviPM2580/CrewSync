@@ -4,6 +4,7 @@ import {
   getProjectByIdAndWorkspaceIdController,
   getProjectAnalyticsController,
   updateProjectController,
+  deleteProjectController,
 } from "@/controllers/project.controller.js";
 import asyncHandler from "@/middlewares/async-handler.middleware.js";
 import { isAuthenticated } from "@/middlewares/isAunticates.middleware.js";
@@ -62,6 +63,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(updateProjectWithParamsSchema),
     asyncHandler(updateProjectController)
+  );
+
+router
+  .route("/:id/workspace/:workspaceId/delete")
+  .delete(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getProjectByIdAndWorkspaceIdSchema),
+    asyncHandler(deleteProjectController)
   );
 
 export default router;
