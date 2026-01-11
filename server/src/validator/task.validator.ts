@@ -172,6 +172,19 @@ export const getTaskByIdSchema = {
   }),
 };
 
+export const deleteTaskSchema = {
+  params: z.object({
+    workspaceId: z
+      .string()
+      .refine((val) => mongoose.Types.ObjectId.isValid(val), {
+        message: "Invalid workspaceId",
+      }),
+    taskId: z.string().refine((val) => mongoose.Types.ObjectId.isValid(val), {
+      message: "Invalid taskId",
+    }),
+  }),
+};
+
 export type CreateTaskType = z.infer<typeof createTaskSchema>;
 export type CreateTaskBodyType = z.infer<typeof createTaskSchema.body>;
 export type CreateTaskParamsType = z.infer<typeof createTaskSchema.params>;
@@ -182,3 +195,4 @@ export type GetAllTasksType = z.infer<typeof getAllTasksSchema>;
 export type GetAllTasksParamsType = z.infer<typeof getAllTasksSchema.params>;
 export type GetAllTasksQueryType = z.infer<typeof getAllTasksSchema.query>;
 export type GetTaskByIdType = z.infer<typeof getTaskByIdSchema.params>;
+export type DeleteTaskType = z.infer<typeof deleteTaskSchema.params>;
