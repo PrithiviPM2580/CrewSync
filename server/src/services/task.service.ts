@@ -159,7 +159,7 @@ export async function getAllTaskService(
   const skip = (pageNumber - 1) * pageSize;
 
   const [tasks, totalCount] = await Promise.all([
-    Task.findById(query)
+    Task.find(query)
       .skip(skip)
       .limit(pageSize)
       .sort({ createdAt: -1 })
