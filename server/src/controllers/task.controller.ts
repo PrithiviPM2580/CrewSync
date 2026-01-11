@@ -9,6 +9,7 @@ import {
   updateTaskService,
   getAllTaskService,
   getTaskByIdService,
+  deleteTaskService,
 } from "@/services/task.service.js";
 
 export async function createTaskController(
@@ -189,4 +190,36 @@ export async function getTaskByIdController(
   });
 
   successResponse(res, 200, "Fetched task by ID successfully", { task });
+}
+
+export async function deleteTaskController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+
+  const workspaceId = req.params.workspaceId!;
+  const taskId = req.params.id!;
+
+  if (!userId) {
+    logger.error("User not authenticated", {
+      label: "DeleteTaskController",
+    });
+    return next(new APIError(401, "User not authenticated"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.DELETE_TASK]);
+
+  await deleteTaskService(workspaceId, taskId);
+
+  logger.info("Task deleted successfully", {
+    label: "DeleteTaskController",
+    taskId,
+    workspaceId,
+    userId,
+  });
+
+  successResponse(res, 200, "Task deleted successfully");
 }
