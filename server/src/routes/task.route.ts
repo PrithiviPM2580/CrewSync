@@ -8,9 +8,11 @@ import {
   updateTaskController,
   getAllTasksController,
   getTaskByIdController,
+  deleteTaskController,
 } from "@/controllers/task.controller.js";
 import {
   createTaskSchema,
+  deleteTaskSchema,
   getAllTasksSchema,
   getTaskByIdSchema,
   updateTaskSchema,
@@ -52,6 +54,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(getTaskByIdSchema),
     asyncHandler(getTaskByIdController)
+  );
+
+router
+  .route("/:id/workspace/:workspaceId/delete")
+  .delete(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(deleteTaskSchema),
+    asyncHandler(deleteTaskController)
   );
 
 export default router;
