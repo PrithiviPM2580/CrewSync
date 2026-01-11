@@ -8,6 +8,7 @@ import {
   createTaskService,
   updateTaskService,
   getAllTaskService,
+  getTaskByIdService,
 } from "@/services/task.service.js";
 
 export async function createTaskController(
@@ -153,4 +154,39 @@ export async function getAllTasksController(
   });
 
   successResponse(res, 200, "Fetched all tasks successfully", result);
+}
+
+export async function getTaskByIdController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+
+  const workspaceId = req.params.workspaceId!;
+  const projectId = req.params.projectId!;
+  const taskId = req.params.id!;
+
+  if (!userId) {
+    logger.error("User not authenticated", {
+      label: "GetTaskByIdController",
+    });
+
+    return next(new APIError(401, "User not authenticated"));
+  }
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+  const task = await getTaskByIdService(workspaceId, projectId, taskId);
+
+  logger.info("Fetched task by ID successfully", {
+    label: "GetTaskByIdController",
+    taskId,
+    workspaceId,
+    projectId,
+    userId,
+  });
+
+  successResponse(res, 200, "Fetched task by ID successfully", { task });
 }
