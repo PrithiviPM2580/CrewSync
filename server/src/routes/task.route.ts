@@ -6,9 +6,11 @@ import { Router } from "express";
 import {
   createTaskController,
   updateTaskController,
+  getAllTasksController,
 } from "@/controllers/task.controller.js";
 import {
   createTaskSchema,
+  getAllTasksSchema,
   updateTaskSchema,
 } from "@/validator/task.validator.js";
 
@@ -30,6 +32,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(updateTaskSchema),
     asyncHandler(updateTaskController)
+  );
+
+router
+  .route("/workspace/:workspaceId/all")
+  .get(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getAllTasksSchema),
+    asyncHandler(getAllTasksController)
   );
 
 export default router;
