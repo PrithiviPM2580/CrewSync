@@ -219,3 +219,21 @@ export async function getTaskByIdService(
 
   return task;
 }
+
+export async function deleteTaskService(workspaceId: string, taskId: string) {
+  const task = await Task.findOneAndDelete({
+    _id: taskId,
+    workspace: workspaceId,
+  });
+
+  if (!task) {
+    logger.error("Task not found or already deleted", {
+      label: "DeleteTaskService",
+      taskId,
+      workspaceId,
+    });
+    throw new APIError(404, "Task not found or already deleted");
+  }
+
+  return;
+}
