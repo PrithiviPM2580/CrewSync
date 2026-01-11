@@ -181,3 +181,41 @@ export async function getAllTaskService(
     },
   };
 }
+
+export async function getTaskByIdService(
+  workspaceId: string,
+  projectId: string,
+  taskId: string
+) {
+  const project = await Project.findById(projectId);
+
+  if (!project || project.workspace.toString() !== workspaceId) {
+    logger.error("Project not found or does not belong to the workspace", {
+      label: "GetTaskByIdService",
+      projectId,
+      workspaceId,
+    });
+    throw new APIError(
+      404,
+      "Project not found or does not belong to the workspace"
+    );
+  }
+
+  const task = await Task.findOne({
+    _id: taskId,
+    workspace: workspaceId,
+    project: projectId,
+  }).populate("assignedTo", "_id name profilePicture");
+
+  if (!task) {
+    logger.error("Task not found", {
+      label: "GetTaskByIdService",
+      taskId,
+      projectId,
+      workspaceId,
+    });
+    throw new APIError(404, "Task not found");
+  }
+
+  return task;
+}
