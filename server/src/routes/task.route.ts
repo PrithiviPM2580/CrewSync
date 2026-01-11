@@ -7,10 +7,12 @@ import {
   createTaskController,
   updateTaskController,
   getAllTasksController,
+  getTaskByIdController,
 } from "@/controllers/task.controller.js";
 import {
   createTaskSchema,
   getAllTasksSchema,
+  getTaskByIdSchema,
   updateTaskSchema,
 } from "@/validator/task.validator.js";
 
@@ -41,6 +43,15 @@ router
     isAuthenticated,
     validateRequestMiddleware(getAllTasksSchema),
     asyncHandler(getAllTasksController)
+  );
+
+router
+  .route("/:id/project/:projectId/workspace/:workspaceId")
+  .get(
+    apiLimitter,
+    isAuthenticated,
+    validateRequestMiddleware(getTaskByIdSchema),
+    asyncHandler(getTaskByIdController)
   );
 
 export default router;
