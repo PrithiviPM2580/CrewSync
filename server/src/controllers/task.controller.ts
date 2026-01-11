@@ -7,6 +7,7 @@ import type { NextFunction, Request, Response } from "express";
 import {
   createTaskService,
   updateTaskService,
+  getAllTaskService,
 } from "@/services/task.service.js";
 
 export async function createTaskController(
@@ -88,4 +89,68 @@ export async function updateTaskController(
   });
 
   successResponse(res, 200, "Task updated successfully", { updatedTask });
+}
+
+export async function getAllTasksController(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const userId = req.user?._id;
+
+  const workspaceId = req.params.workspaceId!;
+
+  if (!userId) {
+    logger.error("User not authenticated", {
+      label: "GetAllTasksController",
+    });
+
+    return next(new APIError(401, "User not authenticated"));
+  }
+
+  const filters: {
+    projectId?: string;
+    status?: string[];
+    priority?: string[];
+    assignedTo?: string[];
+    keyword?: string;
+    dueDate?: string;
+  } = {};
+
+  if (req.query.projectId) {
+    filters.projectId = req.query.projectId as string;
+  }
+  if (req.query.status) {
+    filters.status = (req.query.status as string).split(",");
+  }
+  if (req.query.priority) {
+    filters.priority = (req.query.priority as string).split(",");
+  }
+  if (req.query.assignedTo) {
+    filters.assignedTo = (req.query.assignedTo as string).split(",");
+  }
+  if (req.query.keyword) {
+    filters.keyword = req.query.keyword as string;
+  }
+  if (req.query.dueDate) {
+    filters.dueDate = req.query.dueDate as string;
+  }
+
+  const pagination = {
+    pageSize: parseInt(req.query.pageSize as string) || 10,
+    pageNumber: parseInt(req.query.pageNumber as string) || 1,
+  };
+
+  const { role } = await getMemberRoleInWorkspace(userId, workspaceId);
+  roleGuard(role, [PermissionEnum.VIEW_ONLY]);
+
+  const result = await getAllTaskService(workspaceId, filters, pagination);
+
+  logger.info("Fetched all tasks successfully", {
+    label: "GetAllTasksController",
+    workspaceId,
+    userId,
+  });
+
+  successResponse(res, 200, "Fetched all tasks successfully", result);
 }
