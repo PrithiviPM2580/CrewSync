@@ -1,7 +1,6 @@
 import type { CustomErr } from "@/types/custom-err";
 import axios from "axios";
-
-const baseURL = import.meta.env.VITE_API_BASE_URL;
+import { baseURL } from "@/utils";
 
 const options = {
   baseURL,
