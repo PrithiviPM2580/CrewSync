@@ -1,7 +1,8 @@
-import React from "react";
+import { Outlet, Navigate } from "react-router-dom";
 
 const AuthRoute = () => {
-  return <div>AuthRoute</div>;
+  const isAuthenticated = true;
+  return isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default AuthRoute;
